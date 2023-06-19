@@ -32,6 +32,10 @@ public class GenerateMonthlyHeavy {
      */
     private static final int ROW_NUM_END = 4;
 
+    private static double watermelon = 0;
+
+    private static double other = 0;
+
     private static int verify(Row row) {
 
         // 假如某一行的第一列是null，说明所有的行走完了
@@ -67,11 +71,15 @@ public class GenerateMonthlyHeavy {
         XSSFSheet result_sheet = workbook.getSheetAt(0);
 
 
-
         //
         handle_daily_nromal(5, result_sheet);
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
+
+        System.out.println("西瓜重量：" + watermelon);
+        System.out.println("其他重量：" + other);
+        double v = watermelon + other;
+        System.out.println("总和："+ v);
     }
 
 
@@ -138,8 +146,9 @@ public class GenerateMonthlyHeavy {
 
     /**
      * 根据当前操作的文件和页号来确定应该操作最终那个大文件的哪一列
-     * @param real_file 此时在操作的某个文件
-     * @param sheet_number  此时操作的某个文件的某页
+     *
+     * @param real_file    此时在操作的某个文件
+     * @param sheet_number 此时操作的某个文件的某页
      * @return
      */
     private static int get_col_num(File real_file, int sheet_number) {
@@ -180,8 +189,17 @@ public class GenerateMonthlyHeavy {
                 // 更新合计金额
                 break;
             }
+            DataFormatter formatter = new DataFormatter();
+            Cell cell2 = row.getCell(1);
+            String s2 = formatter.formatCellValue(cell2);
 
             Double quantity = new Double(get_cell_value(row, 4));
+            if (s2.contains("西瓜")) {
+                watermelon += quantity;
+                System.out.println(s2);
+            } else {
+                other += quantity;
+            }
             sum += quantity;
         }
         return sum;
