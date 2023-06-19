@@ -129,10 +129,19 @@ public class ExcelProcessor {
         DataFormatter dataFormatter = new DataFormatter();
         // 设置新价格
         Cell cell_price = row.getCell(5);
+        Cell cell_water = row.getCell(1);
+        String cell_name = dataFormatter.formatCellValue(cell_water);
         String s_price = dataFormatter.formatCellValue(cell_price);
         Double old_price = new Double(s_price);
-        cell_price.setCellValue(old_price + amount);
         Double new_price = old_price + amount;
+        // 西瓜目前加1元
+        if (cell_name.contains("西瓜")) {
+            System.out.println("西瓜");
+            new_price -= 2;
+        }
+        cell_price.setCellValue(new_price);
+
+
 
         // 获得数量
         Cell cell_quantity = row.getCell(4);

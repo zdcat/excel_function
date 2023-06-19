@@ -1,9 +1,13 @@
 package org.example;
 
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MyWindow extends JFrame {
     private JTextField textFieldMonth, textFieldDay;  // 将文本框改成两个文本框
@@ -130,6 +134,7 @@ public class MyWindow extends JFrame {
             System.out.println("执行出错");
             throw new RuntimeException(e);
         }
+        
         JOptionPane.showMessageDialog(this, "加价成功");
         System.exit(0);
     }

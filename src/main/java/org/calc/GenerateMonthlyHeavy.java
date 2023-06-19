@@ -1,5 +1,6 @@
 package org.calc;
 
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,7 +15,7 @@ import java.io.FileOutputStream;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-public class GenerateMonthlyNormalExcel {
+public class GenerateMonthlyHeavy {
     private static final int ROW_NUM = 1;
     /**
      * 表明该行是合计那一行，在这一行要更新sum值
@@ -59,7 +60,7 @@ public class GenerateMonthlyNormalExcel {
 
     public static void main(String[] args) throws Exception {
         // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\正常价格\\5月幼乐鲜.xlsx");
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\5月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -181,10 +182,7 @@ public class GenerateMonthlyNormalExcel {
             }
 
             Double quantity = new Double(get_cell_value(row, 4));
-            Double price = new Double(get_cell_value(row, 5));
-            Double per_row_value = new Double(quantity * price);
-            per_row_value = format_double(per_row_value);
-            sum += per_row_value;
+            sum += quantity;
         }
         return sum;
     }
@@ -202,3 +200,5 @@ public class GenerateMonthlyNormalExcel {
         return s;
     }
 }
+
+
