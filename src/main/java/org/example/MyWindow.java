@@ -54,10 +54,10 @@ public class MyWindow extends JFrame {
 
         // 创建勾选框，并使用布局管理器将它们放置在一起
         JPanel checkBoxPanel = new JPanel(new GridLayout(2, 2));
-        checkBox1 = new JCheckBox("吾悦");
-        checkBox2 = new JCheckBox("兴西");
-        checkBox3 = new JCheckBox("圪僚沟");
-        checkBox4 = new JCheckBox("赞城");
+        checkBox1 = new JCheckBox("吾悦",true);
+        checkBox2 = new JCheckBox("兴西",true);
+        checkBox3 = new JCheckBox("圪僚沟",true);
+        checkBox4 = new JCheckBox("赞城",true);
         checkBox1.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox2.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox3.setFont(new Font("宋体", Font.PLAIN, 30));

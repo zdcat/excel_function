@@ -36,6 +36,8 @@ public class GenerateMonthlyHeavy {
 
     private static double other = 0;
 
+    private static boolean watermelon_flag = false;
+
     private static int verify(Row row) {
 
         // 假如某一行的第一列是null，说明所有的行走完了
@@ -63,8 +65,9 @@ public class GenerateMonthlyHeavy {
     }
 
     public static void main(String[] args) throws Exception {
+        int m = 6;
         // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\5月幼乐鲜重量.xlsx");
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -72,14 +75,14 @@ public class GenerateMonthlyHeavy {
 
 
         //
-        handle_daily_nromal(5, result_sheet);
+        handle_daily_nromal(m, result_sheet);
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
 
         System.out.println("西瓜重量：" + watermelon);
         System.out.println("其他重量：" + other);
         double v = watermelon + other;
-        System.out.println("总和："+ v);
+        System.out.println("总和：" + v);
     }
 
 
@@ -111,6 +114,12 @@ public class GenerateMonthlyHeavy {
             for (File real_file : real_files) {
                 XSSFWorkbook sheets = new XSSFWorkbook(new FileInputStream(real_file));
 
+
+//                if (real_file.getName().contains("吾") || real_file.getName().contains("赞")) {
+//                    watermelon_flag = true;
+//                }
+//                if (day < 10)  watermelon_flag = false;
+
                 for (int sheet_number = 0; sheet_number < 4; sheet_number++) {
                     // 拿到这一页
                     XSSFSheet sheet = sheets.getSheetAt(sheet_number);
@@ -137,6 +146,9 @@ public class GenerateMonthlyHeavy {
                     }
 
                 }
+
+
+//                watermelon_flag = false;
             }
 
 
@@ -194,12 +206,17 @@ public class GenerateMonthlyHeavy {
             String s2 = formatter.formatCellValue(cell2);
 
             Double quantity = new Double(get_cell_value(row, 4));
+//            if (s2.contains("西瓜") && watermelon_flag) {
+//                watermelon += quantity;
+//            }
+//            if (!s2.contains("西瓜") && watermelon_flag) {
+//                other += quantity;
+//            }
             if (s2.contains("西瓜")) {
                 watermelon += quantity;
-                System.out.println(s2);
-            } else {
-                other += quantity;
             }
+
+
             sum += quantity;
         }
         return sum;

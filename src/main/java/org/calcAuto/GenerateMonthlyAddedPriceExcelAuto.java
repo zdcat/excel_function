@@ -1,9 +1,10 @@
-package org.calc;
+package org.calcAuto;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,8 +14,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Iterator;
 
-public class GenerateMonthlyNormalExcel {
+public class GenerateMonthlyAddedPriceExcelAuto {
     private static final int ROW_NUM = 1;
     /**
      * 表明该行是合计那一行，在这一行要更新sum值
@@ -59,8 +61,115 @@ public class GenerateMonthlyNormalExcel {
 
     public static void main(String[] args) throws Exception {
         int m = 6;
-        // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\正常价格\\" + m + "月幼乐鲜.xlsx");
+        // 先清除所有的数据
+        clearAll(m);
+        // 将每一天的数据填上去
+        setDailyNum(m);
+        // 从第2行到第32行每行都计算各家当天各自总和，包括当天的总销售
+        setDailySumPerZooAndPerRow(m);
+        // 从第2列到第21列计算每家各自每个月送了多少
+        setDailySumPerZooAndPerColumn(m);
+
+
+    }
+
+    private static void setDailySumPerZooAndPerColumn(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+        // 只操作第32行
+        Row row = result_sheet.getRow(32);
+        double sumPerZoo = 0.0;
+        for (Cell cell : row) {
+            int columnIndex = cell.getColumnIndex();
+            if (columnIndex == 0) {
+                continue;
+            }
+            if (columnIndex == 5 || columnIndex == 10 || columnIndex == 15 || columnIndex == 20) {
+                cell.setCellValue(sumPerZoo);
+                sumPerZoo = 0.0;
+                continue;
+            }
+            if (columnIndex == 21) {
+                break;
+            }
+
+            double sum = 0;
+            for (int i = 1; i <= 31; i++) {
+                Double num = format_double(new Double(get_cell_value(result_sheet.getRow(i), columnIndex)));
+                sum += num;
+            }
+
+            cell.setCellValue(sum);
+            sumPerZoo += sum;
+        }
+
+
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+    /**
+     * 从第2行到第32行每行都计算各家当天各自总和，包括当天总销售以及当月总销售
+     *
+     * @param m
+     * @throws Exception
+     */
+    private static void setDailySumPerZooAndPerRow(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+        // 记录当月总销售
+        double sumMonth = 0.0;
+        for (Row row : result_sheet) {
+            // 第一行不考虑
+            if (row.getRowNum() == 0) {
+                continue;
+            }
+            // 只计算第2行到第32行
+            if (row.getRowNum() == 31) {
+                break;
+            }
+
+            // 计算当天的总销售
+            double sumDaily = 0.0;
+            for (int times = 0; times < 4; times++) {
+                double sum = 0.0;
+                for (int i = 1 + times * 5; i <= 4 + times * 5; i++) {
+                    Double num = format_double(new Double(get_cell_value(row, i)));
+                    // 更新某一家当天总销售
+                    sum += num;
+                }
+
+                // 设置某一家当天总销售
+                Cell cell = row.getCell(5 + times * 5);
+                cell.setCellValue(sum);
+                // 更新当天总销售
+                sumDaily += sum;
+            }
+            // 给当天总销售设置
+            Cell sumDailyCell = row.getCell(21);
+            sumDailyCell.setCellValue(sumDaily);
+            // 更新当月总销售
+            sumMonth += sumDaily;
+        }
+
+        // 给月度总和设置值
+        Cell sumMonthCell = result_sheet.getRow(32).getCell(21);
+        sumMonthCell.setCellValue(sumMonth);
+
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+    private static void setDailyNum(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -69,6 +178,36 @@ public class GenerateMonthlyNormalExcel {
 
         //
         handle_daily_nromal(m, result_sheet);
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+    private static void clearAll(int m) throws Exception {
+        // 获取到最终的文件
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+
+        for (Row row : result_sheet) {
+            // 第一行不处理
+            if (row.getRowNum() == 0) {
+                continue;
+            }
+
+            Iterator<Cell> cellIterator = row.cellIterator();
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                if (cell.getColumnIndex() == 0) {
+                    continue;
+                }
+                cell.setCellValue(0);
+            }
+
+        }
+
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
     }
@@ -90,10 +229,13 @@ public class GenerateMonthlyNormalExcel {
             System.out.println(month + "月" + day);
 
             // 指定月的每个文件夹的绝对路径
+            // C:\Users\84334\Desktop\order\2023\票\单子综合\4.10
             String abso_path = file.getAbsolutePath();
+
+
             // 指定月的每天的正常价格的目录的绝对路径
             // C:\Users\84334\Desktop\order\2023\票\单子综合\4.10\正常价格
-            String real_abso_path = abso_path + "\\正常价格";
+            String real_abso_path = get_real_abso_path(abso_path);
 //            System.out.println(real_abso_path);
 
             File real_file_per_day = new File(real_abso_path);
@@ -133,6 +275,18 @@ public class GenerateMonthlyNormalExcel {
 
         }
 
+    }
+
+    private static String get_real_abso_path(String absoPath) throws Exception {
+        File file = new File(absoPath);
+        File[] files = file.listFiles();
+        for (File file1 : files) {
+            if (file1.isDirectory())
+                if (file1.getName().contains("加")) {
+                    return absoPath + "\\" + file1.getName();
+                }
+        }
+        return "";
     }
 
     /**

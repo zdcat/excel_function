@@ -1,9 +1,11 @@
-package org.calc;
+package org.calcAuto;
+
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,8 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Iterator;
 
-public class GenerateMonthlyNormalExcel {
+public class GenerateMonthlyHeavyAuto {
     private static final int ROW_NUM = 1;
     /**
      * 表明该行是合计那一行，在这一行要更新sum值
@@ -30,6 +33,11 @@ public class GenerateMonthlyNormalExcel {
      * 这种行介于最低的要计算的数字行和合计行之间的空白行
      */
     private static final int ROW_NUM_END = 4;
+
+    private static double watermelonAll = 0;
+    private static double watermelonWuYueZanCheng = 0;
+
+    private static boolean watermelon_flag = false;
 
     private static int verify(Row row) {
 
@@ -59,18 +67,174 @@ public class GenerateMonthlyNormalExcel {
 
     public static void main(String[] args) throws Exception {
         int m = 6;
+
+        clearAll(m);
         // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\正常价格\\" + m + "月幼乐鲜.xlsx");
+        setDailyHeavy(m);
+        // 从第2行到第32行每行都计算各家当天各自总和
+        setDailySumPerZooAndPerRow(m);
+        // 从第2列到第21列计算每家各自每个月送了多少
+        setDailySumPerZooAndPerColumn(m);
+    }
+
+
+    private static void setDailySumPerZooAndPerColumn(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+        // 只操作第32行
+        Row row = result_sheet.getRow(32);
+        double sumPerZoo = 0.0;
+        double sumFruit = 0.0;
+        double sumVege = 0.0;
+        for (Cell cell : row) {
+            int columnIndex = cell.getColumnIndex();
+            if (columnIndex == 0) {
+                continue;
+            }
+            if (columnIndex == 5 || columnIndex == 10 || columnIndex == 15 || columnIndex == 20) {
+                cell.setCellValue(sumPerZoo);
+                sumPerZoo = 0.0;
+                continue;
+            }
+            if (columnIndex == 21) {
+                break;
+            }
+
+            double sum = 0;
+            for (int i = 1; i <= 31; i++) {
+                Double num = format_double(new Double(get_cell_value(result_sheet.getRow(i), columnIndex)));
+                sum += num;
+            }
+
+            cell.setCellValue(sum);
+            sumPerZoo += sum;
+            // 偶数
+            if (columnIndex % 5 % 2 == 0) {
+                sumFruit += sum;
+//                System.out.println(sum);
+            } else {
+                sumVege += sum;
+//                System.out.println("    " + sum);
+            }
+        }
+
+        // 拿到蔬菜和水果各自的斤数
+        sumFruit = format_double(sumFruit);
+        sumVege = format_double(sumVege);
+        // 写入蔬菜水果各自斤数
+        XSSFCell sumFruitCell = result_sheet.getRow(33).getCell(2);
+        XSSFCell sumVegeCell = result_sheet.getRow(34).getCell(2);
+        sumFruitCell.setCellValue(sumFruit);
+        sumVegeCell.setCellValue(sumVege);
+
+        // 写入西瓜总数量
+        XSSFCell sumAllWatermelon = result_sheet.getRow(35).getCell(2);
+        sumAllWatermelon.setCellValue(watermelonAll);
+        // 写入吾悦赞城西瓜总数量
+        XSSFCell sumWuYueZanChengWatermelon = result_sheet.getRow(36).getCell(2);
+        sumWuYueZanChengWatermelon.setCellValue(watermelonWuYueZanCheng);
+
+
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+
+    private static void setDailySumPerZooAndPerRow(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+        // 记录当月总销售
+
+        for (Row row : result_sheet) {
+            // 第一行不考虑
+            if (row.getRowNum() == 0) {
+                continue;
+            }
+            // 只计算第2行到第32行
+            if (row.getRowNum() == 31) {
+                break;
+            }
+
+
+            for (int times = 0; times < 4; times++) {
+                double sum = 0.0;
+                for (int i = 1 + times * 5; i <= 4 + times * 5; i++) {
+                    Double num = format_double(new Double(get_cell_value(row, i)));
+                    // 更新某一家当天总销售
+                    sum += num;
+                }
+
+                // 设置某一家当天总销售
+                Cell cell = row.getCell(5 + times * 5);
+                cell.setCellValue(sum);
+            }
+            // 给当天总销售设置
+            Cell sumDailyCell = row.getCell(21);
+
+        }
+
+
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+
+    private static void clearAll(int m) throws Exception {
+        // 获取到最终的文件
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
         XSSFSheet result_sheet = workbook.getSheetAt(0);
 
 
-        //
+        for (Row row : result_sheet) {
+            // 第一行不处理
+            if (row.getRowNum() == 0) {
+                continue;
+            }
+            if (row.getRowNum() == 34) {
+                break;
+            }
+
+            Iterator<Cell> cellIterator = row.cellIterator();
+            while (cellIterator.hasNext()) {
+                Cell cell = cellIterator.next();
+                if (cell.getColumnIndex() == 0) {
+                    continue;
+                }
+                cell.setCellValue(0);
+            }
+
+        }
+
+        FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
+        workbook.write(fileOutputStream);
+    }
+
+    private static void setDailyHeavy(int m) throws Exception {
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
+        XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
+        // sheet操作结果页
+        XSSFSheet result_sheet = workbook.getSheetAt(0);
+
+
+
         handle_daily_nromal(m, result_sheet);
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
+
+        System.out.println("西瓜重量：" + watermelonAll);
+        System.out.println("五月赞城" + watermelonWuYueZanCheng);
     }
 
 
@@ -102,6 +266,12 @@ public class GenerateMonthlyNormalExcel {
             for (File real_file : real_files) {
                 XSSFWorkbook sheets = new XSSFWorkbook(new FileInputStream(real_file));
 
+
+                if (real_file.getName().contains("吾") || real_file.getName().contains("赞")) {
+                    watermelon_flag = true;
+                }
+//                if (day < 10)  watermelon_flag = false;
+
                 for (int sheet_number = 0; sheet_number < 4; sheet_number++) {
                     // 拿到这一页
                     XSSFSheet sheet = sheets.getSheetAt(sheet_number);
@@ -128,6 +298,9 @@ public class GenerateMonthlyNormalExcel {
                     }
 
                 }
+
+
+                watermelon_flag = false;
             }
 
 
@@ -180,12 +353,20 @@ public class GenerateMonthlyNormalExcel {
                 // 更新合计金额
                 break;
             }
+            DataFormatter formatter = new DataFormatter();
+            Cell cell2 = row.getCell(1);
+            String s2 = formatter.formatCellValue(cell2);
 
             Double quantity = new Double(get_cell_value(row, 4));
-            Double price = new Double(get_cell_value(row, 5));
-            Double per_row_value = new Double(quantity * price);
-            per_row_value = format_double(per_row_value);
-            sum += per_row_value;
+            if (s2.contains("西瓜") && watermelon_flag) {
+                watermelonWuYueZanCheng += quantity;
+            }
+            if (s2.contains("西瓜")) {
+                watermelonAll += quantity;
+            }
+
+
+            sum += quantity;
         }
         return sum;
     }
@@ -203,3 +384,6 @@ public class GenerateMonthlyNormalExcel {
         return s;
     }
 }
+
+
+
