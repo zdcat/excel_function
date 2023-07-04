@@ -1,6 +1,9 @@
 package org.example;
 
 
+import org.calcAuto.GenerateMonthlyAddedPriceExcelAuto;
+import org.calcAuto.GenerateMonthlyHeavyAuto;
+import org.calcAuto.GenerateMonthlyNormalExcelAuto;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +17,7 @@ public class MyWindow extends JFrame {
     private JCheckBox checkBox1, checkBox2, checkBox3, checkBox4;
     private JButton button;
     private JTextField textFieldFruit, textFieldVegetable;
+
     public MyWindow() {
         super("加价器");
 
@@ -51,13 +55,12 @@ public class MyWindow extends JFrame {
         textPanel.add(textFieldVegetable);
 
 
-
         // 创建勾选框，并使用布局管理器将它们放置在一起
         JPanel checkBoxPanel = new JPanel(new GridLayout(2, 2));
-        checkBox1 = new JCheckBox("吾悦",true);
-        checkBox2 = new JCheckBox("兴西",true);
-        checkBox3 = new JCheckBox("圪僚沟",true);
-        checkBox4 = new JCheckBox("赞城",true);
+        checkBox1 = new JCheckBox("吾悦", true);
+        checkBox2 = new JCheckBox("兴西", true);
+        checkBox3 = new JCheckBox("圪僚沟", true);
+        checkBox4 = new JCheckBox("赞城", true);
         checkBox1.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox2.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox3.setFont(new Font("宋体", Font.PLAIN, 30));
@@ -130,11 +133,15 @@ public class MyWindow extends JFrame {
         String[] array = strings.toArray(new String[strings.size()]);
         try {
             ExcelProcessor.main(array);
+            GenerateMonthlyAddedPriceExcelAuto.main(new String[]{month, day});
+            GenerateMonthlyNormalExcelAuto.main(new String[]{month, day});
+            GenerateMonthlyHeavyAuto.main(new String[]{month, day});
         } catch (Exception e) {
             System.out.println("执行出错");
             throw new RuntimeException(e);
         }
-        
+
+
         JOptionPane.showMessageDialog(this, "加价成功");
         System.exit(0);
     }

@@ -60,11 +60,11 @@ public class GenerateMonthlyNormalExcelAuto {
     }
 
     public static void main(String[] args) throws Exception {
-        int m = 6;
+        int m = Integer.valueOf(args[0]);
         // 先清除所有的数据
         clearAll(m);
         // 将每一天的数据填上去
-        setDailyNum(m);
+        setDailyNum(m, Integer.valueOf(args[1]));
         // 从第2行到第32行每行都计算各家当天各自总和，包括当天的总销售
         setDailySumPerZooAndPerRow(m);
         // 从第2列到第21列计算每家各自每个月送了多少
@@ -168,7 +168,7 @@ public class GenerateMonthlyNormalExcelAuto {
         workbook.write(fileOutputStream);
     }
 
-    private static void setDailyNum(int m) throws Exception {
+    private static void setDailyNum(int m, int day) throws Exception {
         // 获取到最终的文件
         File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\正常价格\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
@@ -178,7 +178,7 @@ public class GenerateMonthlyNormalExcelAuto {
 
 
         //
-        handle_daily_nromal(m, result_sheet);
+        handle_daily_nromal(m, day, result_sheet);
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
     }
@@ -214,7 +214,7 @@ public class GenerateMonthlyNormalExcelAuto {
     }
 
 
-    private static void handle_daily_nromal(int require_month, XSSFSheet result_sheet) throws Exception {
+    private static void handle_daily_nromal(int require_month, int require_day, XSSFSheet result_sheet) throws Exception {
         File source_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\单子综合");
         File[] files = source_file.listFiles();
         for (File file : files) {
@@ -227,6 +227,8 @@ public class GenerateMonthlyNormalExcelAuto {
             if (month > require_month) break;
             // 假如不是指定月份，不看
             if (month != require_month) continue;
+            // 如果超过了某号就不看
+            if (day > require_day) continue;
             System.out.println(month + "月" + day);
 
             // 指定月的每个文件夹的绝对路径
