@@ -76,7 +76,11 @@ public class MyWindow extends JFrame {
         button.setFont(new Font("宋体", Font.PLAIN, 24));
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                executeMethod();
+                try {
+                    executeMethod();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -88,7 +92,7 @@ public class MyWindow extends JFrame {
         contentPane.add(button, BorderLayout.SOUTH);
     }
 
-    private void executeMethod() {
+    private void executeMethod() throws Exception {
         boolean b1 = checkBox1.isSelected();
         boolean b2 = checkBox2.isSelected();
         boolean b3 = checkBox3.isSelected();
@@ -131,15 +135,20 @@ public class MyWindow extends JFrame {
         // 执行需要执行的方法，使用上面获取到的勾选框的状态作为参数
         // ...
         String[] array = strings.toArray(new String[strings.size()]);
-        try {
-            ExcelProcessor.main(array);
-            GenerateMonthlyAddedPriceExcelAuto.main(new String[]{month, day});
-            GenerateMonthlyNormalExcelAuto.main(new String[]{month, day});
-            GenerateMonthlyHeavyAuto.main(new String[]{month, day});
-        } catch (Exception e) {
-            System.out.println("执行出错");
-            throw new RuntimeException(e);
-        }
+//        try {
+        ExcelProcessor.main(array);
+
+        ArrayList<String> list1 = new ArrayList<>();
+        list1.add(month);
+        list1.add(day);
+        String[] array1 = list1.toArray(new String[list1.size()]);
+        GenerateMonthlyAddedPriceExcelAuto.main(array1);
+        GenerateMonthlyNormalExcelAuto.main(array1);
+        GenerateMonthlyHeavyAuto.main(array1);
+//        } catch (Exception e) {
+//            System.out.println("执行出错");
+//            throw new RuntimeException(e);
+//        }
 
 
         JOptionPane.showMessageDialog(this, "加价成功");

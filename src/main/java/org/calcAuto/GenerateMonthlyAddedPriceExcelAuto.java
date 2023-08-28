@@ -60,21 +60,28 @@ public class GenerateMonthlyAddedPriceExcelAuto {
     }
 
     public static void main(String[] args) throws Exception {
-        int m = Integer.valueOf(args[0]);
+        int m = Integer.parseInt(args[0]);
+        System.out.println("m为" + m);
+        int day = Integer.parseInt(args[1]);
+        System.out.println("day为" + day);
         // 先清除所有的数据
         clearAll(m);
+        System.out.println("清除方法执行完成");
         // 将每一天的数据填上去
-        setDailyNum(m, Integer.valueOf(args[1]));
+        setDailyNum(m, day);
+        System.out.println("每天方法执行完成");
         // 从第2行到第32行每行都计算各家当天各自总和，包括当天的总销售
         setDailySumPerZooAndPerRow(m);
+        System.out.println("横向计算完成");
         // 从第2列到第21列计算每家各自每个月送了多少
         setDailySumPerZooAndPerColumn(m);
-
+        System.out.println("竖向计算完成");
 
     }
 
     private static void setDailySumPerZooAndPerColumn(int m) throws Exception {
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        String userName = System.getProperty("user.name");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -119,7 +126,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
      * @throws Exception
      */
     private static void setDailySumPerZooAndPerRow(int m) throws Exception {
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        String userName = System.getProperty("user.name");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -169,7 +177,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
     }
 
     private static void setDailyNum(int m, int day) throws Exception {
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        String userName = System.getProperty("user.name");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -184,7 +193,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
 
     private static void clearAll(int m) throws Exception {
         // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        String userName = System.getProperty("user.name");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -214,7 +224,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
 
 
     private static void handle_daily_nromal(int require_month, int require_day, XSSFSheet result_sheet) throws Exception {
-        File source_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\单子综合");
+        String userName = System.getProperty("user.name");
+        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\单子综合");
         File[] files = source_file.listFiles();
         for (File file : files) {
 //            System.out.println(file.getName());
