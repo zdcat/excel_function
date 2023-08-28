@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.test.DoubleToChinese;
 
 public class ExcelProcessor {
     /**
@@ -107,6 +108,10 @@ public class ExcelProcessor {
                         // 更新合计金额
                         Cell cell = row.getCell(6);
                         cell.setCellValue(sum);
+
+                        Cell cell_chinese_value = row.getCell(2);
+                        String chineseString = DoubleToChinese.getChineseString(sum);
+                        cell_chinese_value.setCellValue(chineseString);
                         break;
                     }
 
@@ -142,7 +147,6 @@ public class ExcelProcessor {
         cell_price.setCellValue(new_price);
 
 
-
         // 获得数量
         Cell cell_quantity = row.getCell(4);
         String s_quantity = dataFormatter.formatCellValue(cell_quantity);
@@ -157,6 +161,7 @@ public class ExcelProcessor {
         result = Double.parseDouble(formattedNumber);
         Cell cell_result = row.getCell(6);
         cell_result.setCellValue(result);
+
 
         return result;
     }
