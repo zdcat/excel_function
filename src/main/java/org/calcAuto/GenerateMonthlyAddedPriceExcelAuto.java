@@ -141,7 +141,7 @@ public class GenerateMonthlyAddedPriceExcelAuto {
                 continue;
             }
             // 只计算第2行到第32行
-            if (row.getRowNum() == 31) {
+            if (row.getRowNum() == 32) {
                 break;
             }
 
