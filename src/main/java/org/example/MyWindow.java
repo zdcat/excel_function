@@ -8,6 +8,7 @@ import org.calcAuto.GenerateMonthlyNormalExcelAuto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -138,13 +139,26 @@ public class MyWindow extends JFrame {
 //        try {
         ExcelProcessor.main(array);
 
-        ArrayList<String> list1 = new ArrayList<>();
-        list1.add(month);
-        list1.add(day);
-        String[] array1 = list1.toArray(new String[list1.size()]);
-        GenerateMonthlyAddedPriceExcelAuto.main(array1);
-        GenerateMonthlyNormalExcelAuto.main(array1);
-        GenerateMonthlyHeavyAuto.main(array1);
+
+        // 如下是自动生成当天及之前的3项月度综合
+//        ArrayList<String> list1 = new ArrayList<>();
+//        list1.add(month);
+//        list1.add(day);
+//        String[] array1 = list1.toArray(new String[list1.size()]);
+//        System.out.println(array1);
+//        GenerateMonthlyAddedPriceExcelAuto.main(array1);
+//        GenerateMonthlyNormalExcelAuto.main(array1);
+//        GenerateMonthlyHeavyAuto.main(array1);
+
+        int maxDay = getMaxDayOfCurrentMonth(Integer.parseInt(month), Integer.parseInt(day));
+        ArrayList<String> list2 = new ArrayList<>();
+        list2.add(month);
+        list2.add(String.valueOf(maxDay));
+        String[] array2 = list2.toArray(new String[list2.size()]);
+        GenerateMonthlyAddedPriceExcelAuto.main(array2);
+        GenerateMonthlyNormalExcelAuto.main(array2);
+        GenerateMonthlyHeavyAuto.main(array2);
+
 //        } catch (Exception e) {
 //            System.out.println("执行出错");
 //            throw new RuntimeException(e);
@@ -153,6 +167,26 @@ public class MyWindow extends JFrame {
 
         JOptionPane.showMessageDialog(this, "加价成功");
         System.exit(0);
+    }
+
+    private int getMaxDayOfCurrentMonth(int month, int day) {
+        String userName = System.getProperty("user.name");
+        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\单子综合");
+        File[] files = source_file.listFiles();
+        int maxDay = day;
+        for (File file : files) {
+            String name = file.getName();
+            System.out.println(name);
+            String[] split = name.split("\\.");
+            System.out.println(split.length);
+            int curMonth = Integer.parseInt(split[0]);
+            int curDay = Integer.parseInt(split[1]);
+
+            if (curMonth != month) continue;
+            maxDay = Math.max(maxDay, curDay);
+        }
+
+        return maxDay;
     }
 
     public static void main(String[] args) {

@@ -230,8 +230,7 @@ public class GenerateMonthlyNormalExcelAuto {
             String[] split = name.split("\\.");
             int month = Integer.valueOf(split[0]);
             int day = Integer.valueOf(split[1]);
-            // 如果到了超出的月份，运行结束
-            if (month > require_month) break;
+
             // 假如不是指定月份，不看
             if (month != require_month) continue;
             // 如果超过了某号就不看
