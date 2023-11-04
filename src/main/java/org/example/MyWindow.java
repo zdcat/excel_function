@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -137,6 +138,7 @@ public class MyWindow extends JFrame {
         // ...
         String[] array = strings.toArray(new String[strings.size()]);
 //        try {
+        // 生成当天加价单子
         ExcelProcessor.main(array);
 
 
@@ -151,6 +153,11 @@ public class MyWindow extends JFrame {
 //        GenerateMonthlyHeavyAuto.main(array1);
 
         int maxDay = getMaxDayOfCurrentMonth(Integer.parseInt(month), Integer.parseInt(day));
+        array[0] = month + "." + maxDay;
+        // 生成当月最后一天的加价单子，以防自动生成月度的单子没有当月最后一天的加价单子
+        ExcelProcessor.main(array);
+
+        // 自动生成月度的
         ArrayList<String> list2 = new ArrayList<>();
         list2.add(month);
         list2.add(String.valueOf(maxDay));
@@ -176,9 +183,9 @@ public class MyWindow extends JFrame {
         int maxDay = day;
         for (File file : files) {
             String name = file.getName();
-            System.out.println(name);
+//            System.out.println(name);
             String[] split = name.split("\\.");
-            System.out.println(split.length);
+//            System.out.println(split.length);
             int curMonth = Integer.parseInt(split[0]);
             int curDay = Integer.parseInt(split[1]);
 
