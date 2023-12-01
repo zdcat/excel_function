@@ -13,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Iterator;
@@ -34,8 +35,8 @@ public class GenerateMonthlyHeavyAuto {
      */
     private static final int ROW_NUM_END = 4;
 
-    private static double watermelonAll = 0;
-    private static double watermelonWuYueZanCheng = 0;
+    private static BigDecimal watermelonAll = new BigDecimal(0);
+    private static BigDecimal watermelonWuYueZanCheng = new BigDecimal(0);
 
     private static boolean watermelon_flag = false;
 
@@ -89,56 +90,57 @@ public class GenerateMonthlyHeavyAuto {
 
         // 只操作第32行
         Row row = result_sheet.getRow(32);
-        double sumPerZoo = 0.0;
-        double sumFruit = 0.0;
-        double sumVege = 0.0;
+        BigDecimal sumPerZoo = new BigDecimal(0);
+        BigDecimal sumFruit = new BigDecimal(0);
+        BigDecimal sumVege = new BigDecimal(0);
         for (Cell cell : row) {
             int columnIndex = cell.getColumnIndex();
             if (columnIndex == 0) {
                 continue;
             }
             if (columnIndex == 5 || columnIndex == 10 || columnIndex == 15 || columnIndex == 20) {
-                cell.setCellValue(sumPerZoo);
-                sumPerZoo = 0.0;
+                cell.setCellValue(sumPerZoo.toString());
+                sumPerZoo = new BigDecimal(0);
                 continue;
             }
             if (columnIndex == 21) {
                 break;
             }
 
-            double sum = 0;
+            BigDecimal sum = new BigDecimal(0);
             for (int i = 1; i <= 31; i++) {
-                Double num = format_double(new Double(get_cell_value(result_sheet.getRow(i), columnIndex)));
-                sum += num;
+                BigDecimal num = new BigDecimal(get_cell_value(result_sheet.getRow(i), columnIndex))
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
+                sum = sum.add(num);
             }
 
-            cell.setCellValue(sum);
-            sumPerZoo += sum;
+            cell.setCellValue(sum.toString());
+            sumPerZoo = sumPerZoo.add(sum);
             // 偶数
             if (columnIndex % 5 % 2 == 0) {
-                sumFruit += sum;
+                sumFruit = sumFruit.add(sum);
 //                System.out.println(sum);
             } else {
-                sumVege += sum;
+                sumVege = sumVege.add(sum);
 //                System.out.println("    " + sum);
             }
         }
 
         // 拿到蔬菜和水果各自的斤数
-        sumFruit = format_double(sumFruit);
-        sumVege = format_double(sumVege);
+//        sumFruit = format_double(sumFruit);
+//        sumVege = format_double(sumVege);
         // 写入蔬菜水果各自斤数
         XSSFCell sumFruitCell = result_sheet.getRow(33).getCell(2);
         XSSFCell sumVegeCell = result_sheet.getRow(34).getCell(2);
-        sumFruitCell.setCellValue(sumFruit);
-        sumVegeCell.setCellValue(sumVege);
+        sumFruitCell.setCellValue(sumFruit.toString());
+        sumVegeCell.setCellValue(sumVege.toString());
 
         // 写入西瓜总数量
         XSSFCell sumAllWatermelon = result_sheet.getRow(35).getCell(2);
-        sumAllWatermelon.setCellValue(watermelonAll);
+        sumAllWatermelon.setCellValue(watermelonAll.toString());
         // 写入吾悦赞城西瓜总数量
         XSSFCell sumWuYueZanChengWatermelon = result_sheet.getRow(36).getCell(2);
-        sumWuYueZanChengWatermelon.setCellValue(watermelonWuYueZanCheng);
+        sumWuYueZanChengWatermelon.setCellValue(watermelonWuYueZanCheng.toString());
 
 
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
@@ -168,16 +170,18 @@ public class GenerateMonthlyHeavyAuto {
 
 
             for (int times = 0; times < 4; times++) {
-                double sum = 0.0;
+                BigDecimal sum = new BigDecimal(0)
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
                 for (int i = 1 + times * 5; i <= 4 + times * 5; i++) {
-                    Double num = format_double(new Double(get_cell_value(row, i)));
+                    BigDecimal num = new BigDecimal(get_cell_value(row, i))
+                            .setScale(2, BigDecimal.ROUND_HALF_UP);
                     // 更新某一家当天总销售
-                    sum += num;
+                    sum = sum.add(num);
                 }
 
                 // 设置某一家当天总销售
                 Cell cell = row.getCell(5 + times * 5);
-                cell.setCellValue(sum);
+                cell.setCellValue(sum.toString());
             }
             // 给当天总销售设置
             Cell sumDailyCell = row.getCell(21);
@@ -283,7 +287,7 @@ public class GenerateMonthlyHeavyAuto {
 //                    System.out.println(real_file.getName());
 //                    System.out.println("第" + sheet_number + "页");
                     // 获得这一页的总和,并且格式化
-                    Double per_sheet_value = format_double(get_per_sheet_value(sheet, 0.0));
+                    BigDecimal per_sheet_value = get_per_sheet_value(sheet);
 
 //                    System.out.println(per_sheet_value);
 
@@ -294,12 +298,16 @@ public class GenerateMonthlyHeavyAuto {
                     XSSFRow result_row = result_sheet.getRow(row_num);
 
                     String cellValue = get_cell_value(result_row, col_num);
+
+                    // 写入这一页的总和
                     if (cellValue.equals("")) {
-                        result_row.getCell(col_num).setCellValue(per_sheet_value);
+                        result_row.getCell(col_num).setCellValue(per_sheet_value.toString());
                     } else {
-                        Double old_row_value = new Double(get_cell_value(result_row, col_num));
-                        Double new_row_value = old_row_value + per_sheet_value;
-                        result_row.getCell(col_num).setCellValue(new_row_value);
+                        BigDecimal old_row_value = new BigDecimal(get_cell_value(result_row, col_num))
+                                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                        BigDecimal new_row_value = old_row_value.add(per_sheet_value)
+                                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                        result_row.getCell(col_num).setCellValue(new_row_value.toString());
                     }
 
                 }
@@ -339,10 +347,11 @@ public class GenerateMonthlyHeavyAuto {
      * 获得每页的总和，sum为初始值
      *
      * @param sheet 当前操作的某页
-     * @param sum   初始值
+     *
      */
-    private static Double get_per_sheet_value(Sheet sheet, Double sum) {
+    private static BigDecimal get_per_sheet_value(Sheet sheet) {
         int i = 0;
+        BigDecimal sum = new BigDecimal(0);
         for (Row row : sheet) {
             if (i <= 4) {
                 i++;
@@ -362,16 +371,18 @@ public class GenerateMonthlyHeavyAuto {
             Cell cell2 = row.getCell(1);
             String s2 = formatter.formatCellValue(cell2);
 
-            Double quantity = new Double(get_cell_value(row, 4));
+            BigDecimal quantity = new BigDecimal(get_cell_value(row, 4))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
             if (s2.contains("西瓜") && watermelon_flag) {
-                watermelonWuYueZanCheng += quantity;
+                watermelonWuYueZanCheng = watermelonWuYueZanCheng.add(quantity)
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
             }
             if (s2.contains("西瓜")) {
-                watermelonAll += quantity;
+                watermelonAll = watermelonAll.add(quantity)
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
             }
 
-
-            sum += quantity;
+            sum = sum.add(quantity);
         }
         return sum;
     }

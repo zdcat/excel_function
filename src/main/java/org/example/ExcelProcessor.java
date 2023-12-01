@@ -146,13 +146,13 @@ public class ExcelProcessor {
         BigDecimal decimal_old_price = new BigDecimal(s_price)
                 .setScale(2, BigDecimal.ROUND_HALF_UP);
         // 获得新价格
-        BigDecimal decimal_new_price = new BigDecimal(0).add(decimal_old_price)
+        BigDecimal decimal_new_price = new BigDecimal(amount).add(decimal_old_price)
                 .setScale(2, BigDecimal.ROUND_HALF_UP);
 
         // 西瓜目前加1元
         if (cell_name.contains("西瓜")) {
             System.out.println("西瓜");
-            decimal_new_price.subtract(new BigDecimal(2))
+            decimal_new_price = decimal_new_price.subtract(new BigDecimal(2))
                     .setScale(2, BigDecimal.ROUND_HALF_UP);
         }
         // 写入新价格

@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Iterator;
@@ -89,29 +90,33 @@ public class GenerateMonthlyAddedPriceExcelAuto {
 
         // 只操作第32行
         Row row = result_sheet.getRow(32);
-        double sumPerZoo = 0.0;
+        BigDecimal sumPerZoo = new BigDecimal(0);
         for (Cell cell : row) {
             int columnIndex = cell.getColumnIndex();
             if (columnIndex == 0) {
                 continue;
             }
             if (columnIndex == 5 || columnIndex == 10 || columnIndex == 15 || columnIndex == 20) {
-                cell.setCellValue(sumPerZoo);
-                sumPerZoo = 0.0;
+                cell.setCellValue(sumPerZoo.toString());
+                sumPerZoo = new BigDecimal(0);
                 continue;
             }
             if (columnIndex == 21) {
                 break;
             }
 
-            double sum = 0;
+            BigDecimal sum = new BigDecimal(0);
             for (int i = 1; i <= 31; i++) {
-                Double num = format_double(new Double(get_cell_value(result_sheet.getRow(i), columnIndex)));
-                sum += num;
+                BigDecimal num = new BigDecimal(get_cell_value(result_sheet.getRow(i), columnIndex))
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
+                sum = sum.add(num)
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
+
             }
 
-            cell.setCellValue(sum);
-            sumPerZoo += sum;
+            cell.setCellValue(sum.toString());
+            sumPerZoo = sumPerZoo.add(sum)
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
         }
 
 
@@ -134,7 +139,7 @@ public class GenerateMonthlyAddedPriceExcelAuto {
         XSSFSheet result_sheet = workbook.getSheetAt(0);
 
         // 记录当月总销售
-        double sumMonth = 0.0;
+        BigDecimal sumMonth = new BigDecimal(0);
         for (Row row : result_sheet) {
             // 第一行不考虑
             if (row.getRowNum() == 0) {
@@ -146,31 +151,32 @@ public class GenerateMonthlyAddedPriceExcelAuto {
             }
 
             // 计算当天的总销售
-            double sumDaily = 0.0;
+            BigDecimal sumDaily = new BigDecimal(0);
             for (int times = 0; times < 4; times++) {
-                double sum = 0.0;
+                BigDecimal sum = new BigDecimal(0);
                 for (int i = 1 + times * 5; i <= 4 + times * 5; i++) {
-                    Double num = format_double(new Double(get_cell_value(row, i)));
+                    BigDecimal num = new BigDecimal(get_cell_value(row, i))
+                            .setScale(2, BigDecimal.ROUND_HALF_UP);
                     // 更新某一家当天总销售
-                    sum += num;
+                    sum = sum.add(num);
                 }
 
                 // 设置某一家当天总销售
                 Cell cell = row.getCell(5 + times * 5);
-                cell.setCellValue(sum);
+                cell.setCellValue(sum.toString());
                 // 更新当天总销售
-                sumDaily += sum;
+                sumDaily = sumDaily.add(sum);
             }
             // 给当天总销售设置
             Cell sumDailyCell = row.getCell(21);
-            sumDailyCell.setCellValue(sumDaily);
+            sumDailyCell.setCellValue(sumDaily.toString());
             // 更新当月总销售
-            sumMonth += sumDaily;
+            sumMonth = sumMonth.add(sumDaily);
         }
 
         // 给月度总和设置值
         Cell sumMonthCell = result_sheet.getRow(32).getCell(21);
-        sumMonthCell.setCellValue(sumMonth);
+        sumMonthCell.setCellValue(sumMonth.toString());
 
         FileOutputStream fileOutputStream = new FileOutputStream(destnation_file);
         workbook.write(fileOutputStream);
@@ -265,7 +271,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
 //                    System.out.println(real_file.getName());
 //                    System.out.println("第" + sheet_number + "页");
                     // 获得这一页的总和,并且格式化
-                    Double per_sheet_value = format_double(get_per_sheet_value(sheet, 0.0));
+                    BigDecimal per_sheet_value = get_per_sheet_value(sheet)
+                            .setScale(2, BigDecimal.ROUND_HALF_UP);
 
 //                    System.out.println(per_sheet_value);
 
@@ -276,12 +283,15 @@ public class GenerateMonthlyAddedPriceExcelAuto {
                     XSSFRow result_row = result_sheet.getRow(row_num);
 
                     String cellValue = get_cell_value(result_row, col_num);
+                    // 写入这一页的总和
                     if (cellValue.equals("")) {
-                        result_row.getCell(col_num).setCellValue(per_sheet_value);
+                        result_row.getCell(col_num).setCellValue(per_sheet_value.toString());
                     } else {
-                        Double old_row_value = new Double(get_cell_value(result_row, col_num));
-                        Double new_row_value = old_row_value + per_sheet_value;
-                        result_row.getCell(col_num).setCellValue(new_row_value);
+                        BigDecimal old_row_value = new BigDecimal(get_cell_value(result_row, col_num))
+                                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                        BigDecimal new_row_value = old_row_value.add(per_sheet_value)
+                                .setScale(2, BigDecimal.ROUND_HALF_UP);
+                        result_row.getCell(col_num).setCellValue(new_row_value.toString());
                     }
 
                 }
@@ -330,9 +340,10 @@ public class GenerateMonthlyAddedPriceExcelAuto {
      * 获得每页的总和，sum为初始值
      *
      * @param sheet 当前操作的某页
-     * @param sum   初始值
+     *
      */
-    private static Double get_per_sheet_value(Sheet sheet, Double sum) {
+    private static BigDecimal get_per_sheet_value(Sheet sheet) {
+        BigDecimal sum = new BigDecimal(0);
         int i = 0;
         for (Row row : sheet) {
             if (i <= 4) {
@@ -350,11 +361,16 @@ public class GenerateMonthlyAddedPriceExcelAuto {
                 break;
             }
 
-            Double quantity = new Double(get_cell_value(row, 4));
-            Double price = new Double(get_cell_value(row, 5));
-            Double per_row_value = new Double(quantity * price);
-            per_row_value = format_double(per_row_value);
-            sum += per_row_value;
+
+
+
+            BigDecimal quantity = new BigDecimal(get_cell_value(row, 4))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal price = new BigDecimal(get_cell_value(row, 5))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal per_row_value = price.multiply(quantity)
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
+            sum = sum.add(per_row_value);
         }
         return sum;
     }
