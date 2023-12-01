@@ -3,15 +3,14 @@ package org.example;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.test.DecimalToChinese;
 import org.test.DoubleToChinese;
 
 public class ExcelProcessor {
@@ -89,7 +88,7 @@ public class ExcelProcessor {
                 Sheet sheet = workbook.getSheetAt(i); // 获取第一个工作表
                 int times = 0;
                 // sum为这一页的新值
-                double sum = 0.0;
+                BigDecimal decimal_sum = BigDecimal.valueOf(0);
 
                 for (Row row : sheet) {
                     if (times <= 4) {
@@ -107,15 +106,19 @@ public class ExcelProcessor {
                     if (status == ROW_SUM) {
                         // 更新合计金额
                         Cell cell = row.getCell(6);
-                        cell.setCellValue(sum);
+                        // 写入这一页的总的新值
+                        cell.setCellValue(decimal_sum.toString());
 
+                        // 写入这一页总的新值的中文
                         Cell cell_chinese_value = row.getCell(2);
-                        String chineseString = DoubleToChinese.getChineseString(sum);
+                        String chineseString = DecimalToChinese.getChineseString(decimal_sum);
                         cell_chinese_value.setCellValue(chineseString);
                         break;
                     }
 
-                    sum = sum + calc(row, map.get(i));
+                    // 不断遍历每一行，不断的加上每一行的新值
+                    decimal_sum = decimal_sum.add(calc(row, map.get(i)))
+                            .setScale(2, BigDecimal.ROUND_HALF_UP);
 
                 }
 
@@ -130,40 +133,46 @@ public class ExcelProcessor {
         }
     }
 
-    private static double calc(Row row, Double amount) {
+    // 生成该row的新值，amount为这一页要加的新值
+    private static BigDecimal calc(Row row, Double amount) {
         DataFormatter dataFormatter = new DataFormatter();
         // 设置新价格
         Cell cell_price = row.getCell(5);
         Cell cell_water = row.getCell(1);
         String cell_name = dataFormatter.formatCellValue(cell_water);
         String s_price = dataFormatter.formatCellValue(cell_price);
-        Double old_price = new Double(s_price);
-        Double new_price = old_price + amount;
+
+        // 获得旧价格
+        BigDecimal decimal_old_price = new BigDecimal(s_price)
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
+        // 获得新价格
+        BigDecimal decimal_new_price = new BigDecimal(0).add(decimal_old_price)
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
+
         // 西瓜目前加1元
         if (cell_name.contains("西瓜")) {
             System.out.println("西瓜");
-            new_price -= 2;
+            decimal_new_price.subtract(new BigDecimal(2))
+                    .setScale(2, BigDecimal.ROUND_HALF_UP);
         }
-        cell_price.setCellValue(new_price);
+        // 写入新价格
+        cell_price.setCellValue(decimal_new_price.toString());
 
 
         // 获得数量
         Cell cell_quantity = row.getCell(4);
         String s_quantity = dataFormatter.formatCellValue(cell_quantity);
-        Double quantity = new Double(s_quantity);
+        BigDecimal decimal_quantity = new BigDecimal(s_quantity)
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
 
         // 设置新金额
-        Double result = new_price * quantity;
-        // 保留一位小数
-        DecimalFormat df = new DecimalFormat("#.#");
-        df.setRoundingMode(RoundingMode.HALF_UP); // 设置四舍五入规则
-        String formattedNumber = df.format(result);
-        result = Double.parseDouble(formattedNumber);
+        // 得到此行新金额
+        BigDecimal decimal_result = decimal_new_price.multiply(decimal_quantity)
+                .setScale(2, BigDecimal.ROUND_HALF_UP);
+        // 写入新金额
         Cell cell_result = row.getCell(6);
-        cell_result.setCellValue(result);
-
-
-        return result;
+        cell_result.setCellValue(decimal_result.toString());
+        return decimal_result;
     }
 
     private static int verify(Row row) {

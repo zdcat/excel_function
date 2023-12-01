@@ -1,21 +1,21 @@
 package org.test;
 
-public class DoubleToChinese {
+import java.math.BigDecimal;
+
+public class DecimalToChinese {
     // 定义中文数字数组
     private static final String[] CHINESE_NUMBERS = {"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
 
     // 定义中文单位数组
     private static final String[] CHINESE_UNITS = {"", "拾", "佰", "仟"};
 
-    public static String getChineseString(double number){
-        if (number == 0){
+    public static String getChineseString(BigDecimal number) {
+        if (number.compareTo(BigDecimal.ZERO) == 0) {
             return "零元整";
         }
-        // 将double类型的数字转换为字符串，并去除小数点后多余的0
-        String numberString = String.format("%.1f", number);
-        if (numberString.endsWith(".0")) {
-            numberString = numberString.substring(0, numberString.length() - 2);
-        }
+
+        // 将decimal类型的数字转换为字符串
+        String numberString = number.setScale(2, BigDecimal.ROUND_HALF_UP).toString();
 
         // 如果存在小数点，则进行分割
         String integerPart;
@@ -35,42 +35,16 @@ public class DoubleToChinese {
         if (!decimalPart.isEmpty()) {
             chineseNumber += convertDecimalToChinese(decimalPart);
         }
-        chineseNumber += "整";
+        if (chineseNumber.endsWith("角")){
+            chineseNumber += "整";
+        }
 
         return chineseNumber;
     }
+
     public static void main(String[] args) {
-        double number = 230.12;
-
-        // 将double类型的数字转换为字符串，并去除小数点后多余的0
-        String numberString = String.format("%.2f", number);
-        if (numberString.endsWith(".0")) {
-            numberString = numberString.substring(0, numberString.length() - 2);
-        }
-
-        // 如果存在小数点，则进行分割
-        String integerPart;
-        String decimalPart = "";
-        if (numberString.contains(".")) {
-            int decimalIndex = numberString.indexOf(".");
-            integerPart = numberString.substring(0, decimalIndex);
-            decimalPart = numberString.substring(decimalIndex + 1);
-        } else {
-            integerPart = numberString;
-        }
-
-        // 将整数部分转换为中文金额
-        String chineseNumber = convertToChinese(integerPart) + "元";
-
-        // 如果有小数部分，则将小数部分转换为中文金额并与整数部分拼接起来
-        if (!decimalPart.isEmpty()) {
-            chineseNumber += convertDecimalToChinese(decimalPart);
-        }
-        chineseNumber += "整";
-
-
-        System.out.println(chineseNumber);
-
+        BigDecimal number = new BigDecimal("230.01");
+        System.out.println(getChineseString(number));
     }
 
     // 将数字字符串转换为中文
@@ -101,9 +75,15 @@ public class DoubleToChinese {
     private static String convertDecimalToChinese(String decimalPart) {
         StringBuilder result = new StringBuilder("");
 
-        char c = decimalPart.charAt(0);
-        int digit = Character.getNumericValue(c);
-        result.append(CHINESE_NUMBERS[digit]).append("角");
+        char firstDigit = decimalPart.charAt(0);
+        int firstDigitValue = Character.getNumericValue(firstDigit);
+        result.append(CHINESE_NUMBERS[firstDigitValue]).append("角");
+
+        char secondDigit = decimalPart.charAt(1);
+        int secondDigitValue = Character.getNumericValue(secondDigit);
+        if (secondDigitValue != 0) {
+            result.append(CHINESE_NUMBERS[secondDigitValue]).append("分");
+        }
 
         return result.toString();
     }
