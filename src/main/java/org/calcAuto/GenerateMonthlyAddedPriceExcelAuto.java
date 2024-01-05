@@ -333,6 +333,8 @@ public class GenerateMonthlyAddedPriceExcelAuto {
         } else if (file_name.equals("赞")) {
             col = 16 + sheet_number;
         }
+
+        
         return col;
     }
 
