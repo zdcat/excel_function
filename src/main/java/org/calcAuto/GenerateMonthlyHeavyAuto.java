@@ -82,7 +82,7 @@ public class GenerateMonthlyHeavyAuto {
 
     private static void setDailySumPerZooAndPerColumn(int m) throws Exception {
         String userName = System.getProperty("user.name");
-        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -150,7 +150,7 @@ public class GenerateMonthlyHeavyAuto {
 
     private static void setDailySumPerZooAndPerRow(int m) throws Exception {
         String userName = System.getProperty("user.name");
-        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -197,7 +197,7 @@ public class GenerateMonthlyHeavyAuto {
     private static void clearAll(int m) throws Exception {
         // 获取到最终的文件
         String userName = System.getProperty("user.name");
-        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -230,7 +230,7 @@ public class GenerateMonthlyHeavyAuto {
 
     private static void setDailyHeavy(int m, int day) throws Exception {
         String userName = System.getProperty("user.name");
-        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
+        File destnation_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\月度销售统计\\重量\\" + m + "月幼乐鲜重量.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -248,7 +248,7 @@ public class GenerateMonthlyHeavyAuto {
 
     private static void handle_daily_nromal(int require_month, int require_day, XSSFSheet result_sheet) throws Exception {
         String userName = System.getProperty("user.name");
-        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\单子综合");
+        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\单子综合");
         File[] files = source_file.listFiles();
         for (File file : files) {
 //            System.out.println(file.getName());
@@ -265,7 +265,7 @@ public class GenerateMonthlyHeavyAuto {
             // 指定月的每个文件夹的绝对路径
             String abso_path = file.getAbsolutePath();
             // 指定月的每天的正常价格的目录的绝对路径
-            // C:\Users\84334\Desktop\order\2023\票\单子综合\4.10\正常价格
+            // C:\Users\84334\Desktop\order\2024\票\单子综合\4.10\正常价格
             String real_abso_path = abso_path + "\\正常价格";
 //            System.out.println(real_abso_path);
 

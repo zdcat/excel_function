@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class MyWindow extends JFrame {
     private JTextField textFieldMonth, textFieldDay;  // 将文本框改成两个文本框
-    private JCheckBox checkBox1, checkBox2, checkBox3, checkBox4;
+    private JCheckBox checkBox1, checkBox2, checkBox3, checkBox4, checkBox5;
     private JButton button;
     private JTextField textFieldFruit, textFieldVegetable;
 
@@ -63,14 +63,17 @@ public class MyWindow extends JFrame {
         checkBox2 = new JCheckBox("兴西", true);
         checkBox3 = new JCheckBox("圪僚沟", true);
         checkBox4 = new JCheckBox("赞城", true);
+        checkBox5 = new JCheckBox("全月生成", false);
         checkBox1.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox2.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox3.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBox4.setFont(new Font("宋体", Font.PLAIN, 30));
+        checkBox5.setFont(new Font("宋体", Font.PLAIN, 30));
         checkBoxPanel.add(checkBox1);
         checkBoxPanel.add(checkBox2);
         checkBoxPanel.add(checkBox3);
         checkBoxPanel.add(checkBox4);
+        checkBoxPanel.add(checkBox5);
 
         // 创建确定按钮, 并设置大小和字体
         button = new JButton("确定");
@@ -99,6 +102,7 @@ public class MyWindow extends JFrame {
         boolean b2 = checkBox2.isSelected();
         boolean b3 = checkBox3.isSelected();
         boolean b4 = checkBox4.isSelected();
+        boolean b5 = checkBox5.isSelected();
         String month = textFieldMonth.getText();
         String day = textFieldDay.getText();
         String fruit_price = textFieldFruit.getText();
@@ -152,7 +156,14 @@ public class MyWindow extends JFrame {
 //        GenerateMonthlyNormalExcelAuto.main(array1);
 //        GenerateMonthlyHeavyAuto.main(array1);
 
-        int maxDay = getMaxDayOfCurrentMonth(Integer.parseInt(month), Integer.parseInt(day));
+//        int maxDay = getMaxDayOfCurrentMonth(Integer.parseInt(month), Integer.parseInt(day));
+        int maxDay = 0;
+        if (b5 == false) {
+            maxDay = Integer.parseInt(day);
+        } else {
+            maxDay = getMaxDayOfCurrentMonth(Integer.parseInt(month), Integer.parseInt(day));
+        }
+
         array[0] = month + "." + maxDay;
         // 生成当月最后一天的加价单子，以防自动生成月度的单子没有当月最后一天的加价单子
         ExcelProcessor.main(array);
@@ -178,7 +189,7 @@ public class MyWindow extends JFrame {
 
     private int getMaxDayOfCurrentMonth(int month, int day) {
         String userName = System.getProperty("user.name");
-        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\单子综合");
+        File source_file = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\单子综合");
         File[] files = source_file.listFiles();
         int maxDay = day;
         for (File file : files) {

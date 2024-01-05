@@ -60,7 +60,7 @@ public class GenerateMonthlyAddedPriceExcel {
     public static void main(String[] args) throws Exception {
         int m = 6;
         // 获取到最终的文件
-        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
+        File destnation_file = new File("C:\\Users\\84334\\Desktop\\order\\2024\\票\\月度销售统计\\" + m + "月幼乐鲜.xlsx");
         FileInputStream destnation_file_stream = new FileInputStream(destnation_file);
         XSSFWorkbook workbook = new XSSFWorkbook(destnation_file_stream);
         // sheet操作结果页
@@ -75,7 +75,7 @@ public class GenerateMonthlyAddedPriceExcel {
 
 
     private static void handle_daily_nromal(int require_month, XSSFSheet result_sheet) throws Exception {
-        File source_file = new File("C:\\Users\\84334\\Desktop\\order\\2023\\票\\单子综合");
+        File source_file = new File("C:\\Users\\84334\\Desktop\\order\\2024\\票\\单子综合");
         File[] files = source_file.listFiles();
         for (File file : files) {
 //            System.out.println(file.getName());
@@ -90,12 +90,12 @@ public class GenerateMonthlyAddedPriceExcel {
             System.out.println(month + "月" + day);
 
             // 指定月的每个文件夹的绝对路径
-            // C:\Users\84334\Desktop\order\2023\票\单子综合\4.10
+            // C:\Users\84334\Desktop\order\2024\票\单子综合\4.10
             String abso_path = file.getAbsolutePath();
 
 
             // 指定月的每天的正常价格的目录的绝对路径
-            // C:\Users\84334\Desktop\order\2023\票\单子综合\4.10\正常价格
+            // C:\Users\84334\Desktop\order\2024\票\单子综合\4.10\正常价格
             String real_abso_path = get_real_abso_path(abso_path);
 //            System.out.println(real_abso_path);
 

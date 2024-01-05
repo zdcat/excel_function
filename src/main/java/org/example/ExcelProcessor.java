@@ -41,7 +41,7 @@ public class ExcelProcessor {
         CopyFolderExample.main(args);
         String userName = System.getProperty("user.name");
         File folder = new File("C:\\Users\\" + userName +
-                "\\Desktop\\order\\2023\\票\\单子综合\\" + args[0] + "\\" + getFileName(args) + " 加3元");
+                "\\Desktop\\order\\2024\\票\\单子综合\\" + args[0] + "\\" + getFileName(args) + " 加3元");
         File[] listOfFiles = folder.listFiles();
 
         // map的key为页号，value为这一页要加的加价，一般蔬菜1.5，水果3

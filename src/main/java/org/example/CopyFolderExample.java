@@ -10,9 +10,9 @@ import java.nio.file.Files;
 public class CopyFolderExample {
     public static void main(String[] args) throws IOException {
         String userName = System.getProperty("user.name");
-        File sourceFolder = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2023\\票\\单子综合\\" + args[0] + "\\正常价格");
+        File sourceFolder = new File("C:\\Users\\" + userName + "\\Desktop\\order\\2024\\票\\单子综合\\" + args[0] + "\\正常价格");
         File destinationFolder = new File("C:\\Users\\" + userName +
-                "\\Desktop\\order\\2023\\票\\单子综合\\" + args[0] + "\\" + getFileName(args) + " 加3元");
+                "\\Desktop\\order\\2024\\票\\单子综合\\" + args[0] + "\\" + getFileName(args) + " 加3元");
 
         // 如果目标文件夹已存在，则删除它及其内容
         if (destinationFolder.exists()) {
@@ -46,7 +46,7 @@ public class CopyFolderExample {
 
     private static void deleteOldAddFolder(String[] args, String userName) throws IOException {
         File folder = new File("C:\\Users\\" + userName +
-                "\\Desktop\\order\\2023\\票\\单子综合\\" + args[0]);
+                "\\Desktop\\order\\2024\\票\\单子综合\\" + args[0]);
         File[] files = folder.listFiles();
         // 遍历所有文件，递归删除子文件夹
         for (File file : files) {
